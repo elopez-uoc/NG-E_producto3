@@ -1,52 +1,176 @@
-# Welcome to your Expo app 👋
+# 📱 React Native App con Firebase Firestore
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil desarrollada con **React Native** y **Expo SDK 54**, que utiliza **Firebase Firestore** para almacenamiento de contenido. Incluye navegación entre 3 pantallas: Inicio (lista de retos), Detalle y Reproductor multimedia.
 
-## Get started
+## 🚀 Inicio rápido
 
-1. Install dependencies
+### Prerrequisitos
 
+- Node.js (versión 18 o superior)
+- npm o yarn
+- Expo CLI (`npm install -g @expo/cli`)
+- Una cuenta de Firebase
+
+### Instalación
+
+1. **Clona el repositorio**
+   ```bash
+   git clone <url-del-repositorio>
+   cd NG-E_producto3
+   ```
+
+2. **Instala las dependencias**
    ```bash
    npm install
    ```
 
-2. Start the app
+3. **Configura Firebase**
+   - Crea un proyecto en [Firebase Console](https://console.firebase.google.com/)
+   - Habilita Firestore Database
+   - Actualiza el archivo `firebaseConfig.ts` con tus credenciales:
+     ```typescript
+     const firebaseConfig = {
+       apiKey: "tu-api-key",
+       authDomain: "tu-project.firebaseapp.com",
+       projectId: "tu-project-id",
+       storageBucket: "tu-project.appspot.com",
+       messagingSenderId: "123456789",
+       appId: "tu-app-id"
+     };
+     ```
 
+4. **Inicia la aplicación**
    ```bash
    npx expo start
    ```
 
-Before using Firebase, update `firebaseConfig.ts` with your Firebase project values:
+## 📱 Ejecutar la aplicación
 
-- `apiKey`
-- `authDomain`
-- `projectId`
-- `storageBucket`
-- `messagingSenderId`
-- `appId`
+### Opciones de ejecución:
 
-This app uses Firestore only for content storage, without authentication.
+- **Expo Go** (recomendado para desarrollo rápido):
+  - Escanea el código QR con la app Expo Go en tu dispositivo móvil
 
-In the output, you'll find options to open the app in a
+- **Emulador Android**:
+  ```bash
+  npx expo start --android
+  ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Simulador iOS** (solo macOS):
+  ```bash
+  npx expo start --ios
+  ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Navegador web**:
+  ```bash
+  npx expo start --web
+  ```
 
-## Get a fresh project
-
-When you're ready, run:
+### Comandos adicionales:
 
 ```bash
-npm run reset-project
+# Limpiar caché y reiniciar
+npx expo start --clear
+
+# Ejecutar en modo producción
+npx expo start --no-dev
+
+# Verificar tipos TypeScript
+npx tsc --noEmit
+
+# Ejecutar linter
+npx eslint . --ext .ts,.tsx
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🏗️ Estructura del proyecto
 
-## Learn more
+```
+├── app/
+│   ├── _layout.tsx          # Layout raíz de Expo Router
+│   ├── index.tsx            # Pantalla de inicio (Home)
+│   ├── detail.tsx           # Pantalla de detalle del reto
+│   └── player.tsx           # Pantalla del reproductor multimedia
+├── types/
+│   └── navigation.ts        # Definiciones de tipos para datos
+├── firebaseConfig.ts        # Configuración de Firebase
+├── app.json                 # Configuración de Expo
+└── package.json             # Dependencias del proyecto
+```
+
+## 🛠️ Tecnologías utilizadas
+
+- **React Native** - Framework para desarrollo móvil
+- **Expo SDK 54** - Plataforma de desarrollo
+- **Firebase Firestore** - Base de datos NoSQL
+- **Expo Router** - Sistema de navegación basado en archivos
+- **TypeScript** - Tipado estático
+- **React Hooks** - Gestión de estado y efectos
+
+## 📊 Características
+
+- ✅ **3 pantallas diferenciadas**:
+  - **Inicio**: Lista infinita de retos desde Firestore
+  - **Detalle**: Información completa del reto seleccionado
+  - **Reproductor**: Controles multimedia simulados
+
+- ✅ **Firebase Firestore**: Almacenamiento de contenido sin autenticación
+- ✅ **Navegación fluida**: Stack Navigation entre pantallas
+- ✅ **TypeScript**: Tipado completo para mejor desarrollo
+- ✅ **Responsive**: Diseño adaptativo para diferentes tamaños de pantalla
+
+## 🔧 Desarrollo
+
+### Scripts disponibles:
+
+```bash
+# Verificar tipos
+npm run type-check
+
+# Ejecutar linter
+npm run lint
+
+# Formatear código
+npm run format
+```
+
+### Configuración de Firebase
+
+La aplicación utiliza únicamente Firestore para almacenar contenido. Los datos se almacenan en la colección `retos` con la siguiente estructura:
+
+```typescript
+interface Reto {
+  id: string;
+  title?: string;
+  description?: string;
+  content?: string;
+  createdAt?: Timestamp;
+}
+```
+
+## 📝 Notas importantes
+
+- La aplicación **no incluye sistema de autenticación**
+- Utiliza **navegación manual** con React Navigation (no Expo Router)
+- Compatible con **Android, iOS y Web**
+- Requiere configuración de Firebase antes de usar
+
+## 🐛 Solución de problemas
+
+### Error "unmatched route page could not be found"
+- Asegúrate de que `expo-router` esté removido de `app.json`
+- Reinicia el servidor con `npx expo start --clear`
+
+### Problemas con Firebase
+- Verifica que las credenciales en `firebaseConfig.ts` sean correctas
+- Asegúrate de que Firestore esté habilitado en Firebase Console
+
+### Errores de TypeScript
+- Ejecuta `npx tsc --noEmit` para verificar tipos
+- Los componentes usan hooks de React Navigation v6
+
+## 📄 Licencia
+
+Este proyecto es parte del curso de Desarrollo de Aplicaciones Móviles - UOC.
 
 To learn more about developing your project with Expo, look at the following resources:
 
