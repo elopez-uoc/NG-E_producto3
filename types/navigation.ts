@@ -1,18 +1,23 @@
 
 export type RootStackParamList = {
   Home: undefined;
-  Detail: { item: Item };
-  Player: { item: Item };
+  Detail: { item: BasketballPlayer };
+  Player: { item: BasketballPlayer };
 };
 
-export interface Item {
+export interface BasketballPlayer {
   id: string;
-  text?: string;
-  title?: string;
-  description?: string;
-  content?: string;
-  mediaUrl?: string;
-  createdAt?: any;
+  nombre: string;
+  edad: number;
+  altura: string;
+  posicion: string;
+  equipo: string;
+  pPP: number; // Puntos por partido
+  aPP: number; // Asistencias por partido
+  rPP: number; // Rebotes por partido
+  porcentajeTiros: number;
+  img?: string;
+  videoUrl?: string;
 }
 
 declare global {

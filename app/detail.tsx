@@ -7,11 +7,11 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { Item } from '../types/navigation';
+import { BasketballPlayer } from '../types/navigation';
 
 export default function Detail() {
   const { item: itemString } = useLocalSearchParams();
-  const item: Item = JSON.parse(itemString as string);
+  const item: BasketballPlayer = JSON.parse(itemString as string);
 
   const handlePlayPress = () => {
     router.push({
@@ -23,32 +23,47 @@ export default function Detail() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{item.title || item.text || 'Detalle del Reto'}</Text>
+        <Text style={styles.title}>{item.nombre}</Text>
+        <Text style={styles.subtitle}>{item.equipo} • {item.posicion}</Text>
       </View>
 
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Descripción</Text>
-          <Text style={styles.description}>
-            {item.description || item.content || 'Sin descripción disponible'}
-          </Text>
+          <Text style={styles.sectionTitle}>Información del Jugador</Text>
+          <Text style={styles.infoText}>🏀 Equipo: {item.equipo}</Text>
+          <Text style={styles.infoText}>📍 Posición: {item.posicion}</Text>
+          <Text style={styles.infoText}>📏 Altura: {item.altura}</Text>
+          <Text style={styles.infoText}>🎂 Edad: {item.edad} años</Text>
         </View>
 
-        {item.createdAt && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Fecha de creación</Text>
-            <Text style={styles.date}>
-              {item.createdAt.toDate ? item.createdAt.toDate().toLocaleDateString() : 'Fecha no disponible'}
-            </Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Estadísticas Principales</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{item.pPP}</Text>
+              <Text style={styles.statLabel}>PPP</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{item.aPP}</Text>
+              <Text style={styles.statLabel}>APP</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{item.rPP}</Text>
+              <Text style={styles.statLabel}>RPP</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{item.porcentajeTiros}%</Text>
+              <Text style={styles.statLabel}>FG%</Text>
+            </View>
           </View>
-        )}
+        </View>
 
         <View style={styles.actions}>
           <TouchableOpacity
             style={styles.playButton}
             onPress={handlePlayPress}
           >
-            <Text style={styles.playButtonText}>▶️ Reproducir Contenido</Text>
+            <Text style={styles.playButtonText}>Ver Vídeo</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -71,7 +86,6 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#ffffff',
     padding: 20,
-    paddingTop: 40,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
   },
@@ -79,6 +93,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1f2937',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginTop: 8,
   },
   content: {
     padding: 20,
@@ -96,6 +117,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6b7280',
     lineHeight: 24,
+  },
+  infoText: {
+    fontSize: 16,
+    color: '#374151',
+    lineHeight: 24,
+    marginBottom: 8,
   },
   date: {
     fontSize: 14,
@@ -127,5 +154,30 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#ffffff',
     fontSize: 14,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  statItem: {
+    width: '48%',
+    backgroundColor: '#f9fafb',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1f2937',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 4,
+    textTransform: 'uppercase',
+    fontWeight: '500',
   },
 });

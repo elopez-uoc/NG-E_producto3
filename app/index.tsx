@@ -10,10 +10,10 @@ import {
   View,
 } from 'react-native';
 import { db } from '../firebaseConfig';
-import { Item } from '../types/navigation';
+import { BasketballPlayer } from '../types/navigation';
 
 export default function Home() {
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<BasketballPlayer[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,47 +22,53 @@ export default function Home() {
 
   const loadItems = async () => {
     try {
-      // Usando la API moderna de Firebase, simulando el comportamiento de 'once'
-      const itemsQuery = query(collection(db, 'retos'), orderBy('createdAt', 'desc'));
+      // Cargar colección de jugadores ordenados por puntos por partido descendente
+      const itemsQuery = query(collection(db, 'jugadores'), orderBy('pPP', 'desc'));
       const snapshot = await getDocs(itemsQuery);
 
-      const itemsData: Item[] = snapshot.docs.map(doc => ({
+      const itemsData: BasketballPlayer[] = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data() as Omit<Item, 'id'>,
+        ...doc.data() as Omit<BasketballPlayer, 'id'>,
       }));
 
       setItems(itemsData);
       setLoading(false);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      Alert.alert('Error', `Error al cargar retos: ${message}`);
+      Alert.alert('Error', `Error al cargar jugadores: ${message}`);
       setLoading(false);
     }
   };
 
-  const handleItemPress = (item: Item) => {
+  const handleItemPress = (item: BasketballPlayer) => {
     router.push({
       pathname: '/detail',
       params: { item: JSON.stringify(item) }
     });
   };
 
-  const renderItem = ({ item }: { item: Item }) => (
+  const renderItem = ({ item }: { item: BasketballPlayer }) => (
     <TouchableOpacity
       style={styles.itemContainer}
       onPress={() => handleItemPress(item)}
     >
-      <Text style={styles.itemTitle}>{item.title || item.text || 'Sin título'}</Text>
-      <Text style={styles.itemDescription}>
-        {item.description || 'Sin descripción'}
-      </Text>
+      <Text style={styles.itemTitle}>{item.nombre}</Text>
+      <View style={styles.playerInfo}>
+        <Text style={styles.teamText}>🏀 {item.equipo}</Text>
+        <Text style={styles.positionText}>{item.posicion}</Text>
+      </View>
+      <View style={styles.statsRow}>
+        <Text style={styles.statText}>📊 {item.pPP} PPP</Text>
+        <Text style={styles.statText}>🎯 {item.porcentajeTiros}%</Text>
+        <Text style={styles.statText}>📏 {item.altura}</Text>
+      </View>
     </TouchableOpacity>
   );
 
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.loadingText}>Cargando retos...</Text>
+        <Text style={styles.loadingText}>Cargando jugadores...</Text>
       </View>
     );
   }
@@ -70,8 +76,8 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Retos Disponibles</Text>
-        <Text style={styles.headerSubtitle}>Explora y participa</Text>
+        <Text style={styles.headerTitle}>🏀 Jugadores</Text>
+        <Text style={styles.headerSubtitle}>Ranking por puntos por partido</Text>
       </View>
 
       <FlatList
@@ -82,7 +88,7 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No hay retos disponibles</Text>
+            <Text style={styles.emptyText}>No hay jugadores registrados</Text>
           </View>
         }
       />
@@ -146,6 +152,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     lineHeight: 20,
+  },
+  playerInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  teamText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#7c3aed',
+  },
+  positionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#059669',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  statText: {
+    fontSize: 12,
+    color: '#374151',
+    fontWeight: '500',
   },
   loadingText: {
     fontSize: 16,

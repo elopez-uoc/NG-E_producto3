@@ -1,6 +1,19 @@
-# 📱 React Native App con Firebase Firestore
+# 🏀 React Native App con Firebase Firestore - Jugadores NBA
 
-Aplicación móvil desarrollada con **React Native** y **Expo SDK 54**, que utiliza **Firebase Firestore** para almacenamiento de contenido. Incluye navegación entre 3 pantallas: Inicio (lista de retos), Detalle y Reproductor multimedia.
+Aplicación móvil desarrollada con **React Native** y **Expo SDK 54**, que muestra una **base de datos de jugadores de baloncesto** desde **Firebase Firestore**. Incluye navegación entre 3 pantallas: Inicio (ranking de jugadores), Detalle del jugador y Estadísticas completas.
+
+## 🎯 Características principales
+
+- ✅ **Base de datos de jugadores NBA** desde Firestore
+- ✅ **Ranking por puntos por partido** (PPP descendente)
+- ✅ **3 pantallas diferenciadas**:
+  - **Inicio**: Lista de jugadores con equipo, posición y estadísticas principales
+  - **Detalle**: Información completa del jugador con estadísticas básicas
+  - **Estadísticas**: Vista detallada con todas las métricas del jugador
+
+- ✅ **Campos de jugador**: nombre, equipo, posición, altura, edad, PPP, APP, RPP, porcentaje de tiros, etc.
+- ✅ **Navegación fluida** entre pantallas con Expo Router
+- ✅ **TypeScript** completo para type safety
 
 ## 🚀 Inicio rápido
 
@@ -87,11 +100,11 @@ npx eslint . --ext .ts,.tsx
 ```
 ├── app/
 │   ├── _layout.tsx          # Layout raíz de Expo Router
-│   ├── index.tsx            # Pantalla de inicio (Home)
-│   ├── detail.tsx           # Pantalla de detalle del reto
-│   └── player.tsx           # Pantalla del reproductor multimedia
+│   ├── index.tsx            # Pantalla de inicio (ranking de jugadores)
+│   ├── detail.tsx           # Pantalla de detalle del jugador
+│   └── video.tsx            # Pantalla de video del jugador (URLs de YouTube)
 ├── types/
-│   └── navigation.ts        # Definiciones de tipos para datos
+│   └── navigation.ts        # Definiciones de tipos para BasketballPlayer
 ├── firebaseConfig.ts        # Configuración de Firebase
 ├── app.json                 # Configuración de Expo
 └── package.json             # Dependencias del proyecto
@@ -109,11 +122,11 @@ npx eslint . --ext .ts,.tsx
 ## 📊 Características
 
 - ✅ **3 pantallas diferenciadas**:
-  - **Inicio**: Lista infinita de retos desde Firestore
-  - **Detalle**: Información completa del reto seleccionado
-  - **Reproductor**: Controles multimedia simulados
+  - **Inicio**: Lista de jugadores NBA ordenados por puntos por partido (PPP)
+  - **Detalle**: Información completa del jugador (equipo, posición, altura, edad, estadísticas principales)
+  - **Estadísticas**: Vista detallada con todas las métricas del jugador (PPP, APP, RPP, porcentajes de tiro, etc.)
 
-- ✅ **Firebase Firestore**: Almacenamiento de contenido sin autenticación
+- ✅ **Firebase Firestore**: Base de datos de jugadores de baloncesto sin autenticación
 - ✅ **Navegación fluida**: Stack Navigation entre pantallas
 - ✅ **TypeScript**: Tipado completo para mejor desarrollo
 - ✅ **Responsive**: Diseño adaptativo para diferentes tamaños de pantalla
@@ -135,22 +148,31 @@ npm run format
 
 ### Configuración de Firebase
 
-La aplicación utiliza únicamente Firestore para almacenar contenido. Los datos se almacenan en la colección `retos` con la siguiente estructura:
+La aplicación utiliza únicamente Firestore para almacenar datos de jugadores de baloncesto. Los datos se almacenan en la colección `jugadores` con la siguiente estructura:
 
 ```typescript
-interface Reto {
+interface BasketballPlayer {
   id: string;
-  title?: string;
-  description?: string;
-  content?: string;
-  createdAt?: Timestamp;
+  nombre: string;
+  equipo: string;
+  posicion: string;
+  altura: string;
+  edad: number;
+  pPP: number;        // Puntos por partido
+  aPP: number;        // Asistencias por partido
+  rPP: number;        // Rebotes por partido
+  porcentajeTiros: number;  // Porcentaje de tiros de campo
+  tirosLibres?: number;     // Porcentaje de tiros libres
+  tiros3?: number;          // Porcentaje de triples
+  img?: string;             // URL de imagen del jugador
+  videoUrl?: string;        // URL de YouTube del jugador (ej: https://youtu.be/yjR6Q4FspFc)
 }
 ```
 
 ## 📝 Notas importantes
 
 - La aplicación **no incluye sistema de autenticación**
-- Utiliza **navegación manual** con React Navigation (no Expo Router)
+- Utiliza **navegación basada en archivos** con Expo Router
 - Compatible con **Android, iOS y Web**
 - Requiere configuración de Firebase antes de usar
 

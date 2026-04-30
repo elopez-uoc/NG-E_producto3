@@ -1,108 +1,95 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import {
+    ActivityIndicator,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from 'react-native';
-import { Item } from '../types/navigation';
+import { BasketballPlayer } from '../types/navigation';
 
-export default function Player() {
+// Función para extraer el video ID de diferentes formatos de YouTube
+const extractYoutubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  
+  const patterns = [
+    /youtu\.be\/([a-zA-Z0-9_-]+)/,
+    /youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]+)/,
+    /^([a-zA-Z0-9_-]+)$/ // ID directo
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  
+  return null;
+};
+
+export default function VideoScreen() {
   const { item: itemString } = useLocalSearchParams();
-  const item: Item = JSON.parse(itemString as string);
+  const item: BasketballPlayer = JSON.parse(itemString as string);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const duration = 100; // Simulado
-
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleStop = () => {
-    setIsPlaying(false);
-    setCurrentTime(0);
-  };
-
-  const handleRewind = () => {
-    setCurrentTime(Math.max(0, currentTime - 10));
-  };
-
-  const handleForward = () => {
-    setCurrentTime(Math.min(duration, currentTime + 10));
-  };
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  const videoUrl = item.videoUrl || '';
+  const videoId = extractYoutubeVideoId(videoUrl);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Reproductor Multimedia</Text>
-        <Text style={styles.subtitle}>{item.title || item.text || 'Contenido'}</Text>
+        <Text style={styles.title}>Video del Jugador</Text>
+        <Text style={styles.subtitle}>{item.nombre}</Text>
+        <Text style={styles.teamText}>{item.equipo} • {item.posicion}</Text>
       </View>
 
-      <View style={styles.playerContainer}>
-        <View style={styles.mediaDisplay}>
-          <Text style={styles.mediaIcon}>🎵</Text>
-          <Text style={styles.mediaTitle}>
-            {item.title || item.text || 'Reproduciendo contenido'}
-          </Text>
-        </View>
+      <View style={styles.videoSection}>
+        {videoId ? (
+          <>
+            <View style={styles.videoWrapper}>
+              <YoutubePlayer
+                height={220}
+                play={false}
+                videoId={videoId}
+                onReady={() => setIsLoading(false)}
+                onError={() => {
+                  setError('Error al cargar el video de YouTube');
+                  setIsLoading(false);
+                }}
+                onChangeState={() => {}}
+              />
+              {isLoading && (
+                <View style={styles.loadingOverlay}>
+                  <ActivityIndicator size="large" color="#3b82f6" />
+                  <Text style={styles.loadingText}>Cargando video...</Text>
+                </View>
+              )}
+              {error && (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>❌ {error}</Text>
+                </View>
+              )}
+            </View>
 
-        <View style={styles.progressBar}>
-          <View
-            style={[
-              styles.progressFill,
-              { width: `${(currentTime / duration) * 100}%` }
-            ]}
-          />
-        </View>
-
-        <View style={styles.timeDisplay}>
-          <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
-          <Text style={styles.timeText}>{formatTime(duration)}</Text>
-        </View>
-
-        <View style={styles.controls}>
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={handleRewind}
-          >
-            <Text style={styles.controlIcon}>⏪</Text>
-            <Text style={styles.controlLabel}>-10s</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.controlButton, styles.playButton]}
-            onPress={handlePlayPause}
-          >
-            <Text style={styles.playIcon}>{isPlaying ? '⏸️' : '▶️'}</Text>
-            <Text style={styles.controlLabel}>
-              {isPlaying ? 'Pausar' : 'Reproducir'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={handleForward}
-          >
-            <Text style={styles.controlIcon}>⏩</Text>
-            <Text style={styles.controlLabel}>+10s</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          style={styles.stopButton}
-          onPress={handleStop}
-        >
-          <Text style={styles.stopIcon}>⏹️</Text>
-          <Text style={styles.stopLabel}>Detener</Text>
-        </TouchableOpacity>
+            <View style={styles.videoInfo}>
+              <Text style={styles.infoTitle}>Descripción</Text>
+              <Text style={styles.infoText}>Reproduce el video disponible en YouTube para este jugador.</Text>
+              <Text style={styles.infoText} numberOfLines={2}>URL: {videoUrl}</Text>
+            </View>
+          </>
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>❌ No hay video disponible para este jugador.</Text>
+            {videoUrl && (
+              <Text style={styles.errorDetails}>URL inválida: {videoUrl}</Text>
+            )}
+          </View>
+        )}
       </View>
 
       <View style={styles.actions}>
@@ -139,102 +126,102 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6b7280',
   },
-  playerContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-  },
-  mediaDisplay: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  mediaIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  mediaTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1f2937',
+  teamText: {
+    fontSize: 14,
+    color: '#6b7280',
     textAlign: 'center',
-  },
-  progressBar: {
-    height: 4,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 2,
-    marginBottom: 8,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#3b82f6',
-    borderRadius: 2,
-  },
-  timeDisplay: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 32,
-  },
-  timeText: {
-    fontSize: 12,
-    color: '#6b7280',
-  },
-  controls: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  controlButton: {
-    alignItems: 'center',
-    marginHorizontal: 16,
-  },
-  playButton: {
-    backgroundColor: '#3b82f6',
-    borderRadius: 50,
-    width: 80,
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  controlIcon: {
-    fontSize: 24,
-  },
-  playIcon: {
-    fontSize: 32,
-  },
-  controlLabel: {
-    fontSize: 12,
-    color: '#6b7280',
     marginTop: 4,
   },
-  stopButton: {
+  videoSection: {
+    flex: 1,
+    padding: 20,
+  },
+  videoWrapper: {
+    backgroundColor: '#000000',
+    borderRadius: 16,
+    overflow: 'hidden',
+    minHeight: 220,
+    marginBottom: 20,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#ef4444',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
   },
-  stopIcon: {
-    fontSize: 20,
-  },
-  stopLabel: {
+  loadingText: {
+    marginTop: 12,
     color: '#ffffff',
     fontSize: 14,
+  },
+  videoInfo: {
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  infoTitle: {
+    fontSize: 16,
     fontWeight: '600',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#4b5563',
+    lineHeight: 20,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+  errorContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fee2e2',
+    borderRadius: 16,
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#991b1b',
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  errorDetails: {
+    fontSize: 12,
+    color: '#7f1d1d',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   actions: {
     padding: 20,
   },
   backButton: {
-    backgroundColor: '#6b7280',
-    paddingVertical: 12,
+    backgroundColor: '#3b82f6',
+    paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
   },
   backButtonText: {
     color: '#ffffff',
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

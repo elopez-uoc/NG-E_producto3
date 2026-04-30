@@ -30,7 +30,7 @@ export default function RootLayout() {
       <Stack.Screen
         name="player"
         options={{
-          title: 'Reproductor',
+          title: 'Estadísticas',
         }}
       />
     </Stack>
