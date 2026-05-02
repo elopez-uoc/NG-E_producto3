@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import ImageZoom from 'react-native-image-zoom-viewer';
 import { BasketballPlayer } from '../types/navigation';
-import { getImageUrl, requireImage } from '../firebaseConfig';
+import { requireImage } from '../firebaseConfig';
 
 export default function Detail() {
   const { item: itemString } = useLocalSearchParams();
@@ -28,26 +28,32 @@ export default function Detail() {
     });
   };
 
-  const imageUrl = item.img ? getImageUrl(item.img) : '';
   const imageSource = useMemo(() => {
-    if (!imageUrl) return null;
+    if (!item.img) return null;
     
-    // Si es una URL, usar directamente
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return { uri: imageUrl };
-    }
-    
-    // Si es una ruta local, intentar cargarla con require()
+    // Usar el mapa estático de imágenes
     try {
-      return requireImage(imageUrl);
+      return requireImage(item.img);
     } catch (err) {
-      console.error('Error cargando imagen local:', imageUrl);
+      console.error('Error cargando imagen:', err);
       return null;
     }
-  }, [imageUrl]);
+  }, [item.img]);
 
-  // Para ImageZoom (necesita URLs)
-  const imageData = imageUrl?.startsWith('http') ? [{ url: imageUrl }] : [];
+  // Para ImageZoom, intentar crear una URL válida
+  const imageData = useMemo(() => {
+    if (!imageSource) return [];
+    
+    try {
+      // Intentar usar Asset.fromModule para obtener una URI válida
+      const Asset = require('expo-asset').Asset;
+      const asset = Asset.fromModule(imageSource);
+      return [{ url: asset.uri }];
+    } catch (err) {
+      // Como fallback, no mostrar zoom
+      return [];
+    }
+  }, [imageSource]);
 
   return (
     <ScrollView style={styles.container}>
@@ -87,6 +93,11 @@ export default function Detail() {
               {!imageLoading && !imageError && imageData.length > 0 && (
                 <View style={styles.zoomHint}>
                   <Text style={styles.zoomHintText}>🔍 Toca para hacer zoom</Text>
+                </View>
+              )}
+              {!imageLoading && !imageError && imageData.length === 0 && (
+                <View style={styles.zoomHint}>
+                  <Text style={styles.zoomHintText}>📷 Imagen cargada</Text>
                 </View>
               )}
             </>
