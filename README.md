@@ -6,11 +6,13 @@ Aplicación móvil desarrollada con **React Native** y **Expo SDK 54**, que mues
 
 - ✅ **Base de datos de jugadores NBA** desde Firestore
 - ✅ **Ranking por puntos por partido** (PPP descendente)
-- ✅ **3 pantallas diferenciadas**:
+- ✅ **4 pantallas diferenciadas**:
   - **Inicio**: Lista de jugadores con equipo, posición y estadísticas principales
   - **Detalle**: Información completa del jugador con estadísticas básicas
-  - **Estadísticas**: Vista detallada con todas las métricas del jugador
+  - **Video**: Reproductor de YouTube individual del jugador
+  - **Videos**: Galería de todos los videos de jugadores disponibles
 
+- ✅ **Navegación global**: Header con botones "Inicio" y "Videos" en todas las pantallas
 - ✅ **Campos de jugador**: nombre, equipo, posición, altura, edad, PPP, APP, RPP, porcentaje de tiros, etc.
 - ✅ **Navegación fluida** entre pantallas con Expo Router
 - ✅ **TypeScript** completo para type safety
@@ -99,10 +101,11 @@ npx eslint . --ext .ts,.tsx
 
 ```
 ├── app/
-│   ├── _layout.tsx          # Layout raíz de Expo Router
+│   ├── _layout.tsx          # Layout raíz con navegación global
 │   ├── index.tsx            # Pantalla de inicio (ranking de jugadores)
 │   ├── detail.tsx           # Pantalla de detalle del jugador
-│   └── video.tsx            # Pantalla de video del jugador (URLs de YouTube)
+│   ├── video.tsx            # Pantalla de video individual del jugador
+│   └── videos.tsx           # Pantalla de galería de videos
 ├── types/
 │   └── navigation.ts        # Definiciones de tipos para BasketballPlayer
 ├── firebaseConfig.ts        # Configuración de Firebase

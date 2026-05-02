@@ -75,11 +75,6 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>🏀 Jugadores</Text>
-        <Text style={styles.headerSubtitle}>Ranking por puntos por partido</Text>
-      </View>
-
       <FlatList
         data={items}
         renderItem={renderItem}
@@ -106,23 +101,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f3f4f6',
-  },
-  header: {
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#6b7280',
   },
   list: {
     flex: 1,

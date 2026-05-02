@@ -1,17 +1,25 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    Image,
+    Modal,
+    ActivityIndicator
 } from 'react-native';
+import ImageZoom from 'react-native-image-zoom-viewer';
 import { BasketballPlayer } from '../types/navigation';
+import { getImageUrl, requireImage } from '../firebaseConfig';
 
 export default function Detail() {
   const { item: itemString } = useLocalSearchParams();
   const item: BasketballPlayer = JSON.parse(itemString as string);
+  const [zoomVisible, setZoomVisible] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   const handlePlayPress = () => {
     router.push({
@@ -20,12 +28,91 @@ export default function Detail() {
     });
   };
 
+  const imageUrl = item.img ? getImageUrl(item.img) : '';
+  const imageSource = useMemo(() => {
+    if (!imageUrl) return null;
+    
+    // Si es una URL, usar directamente
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return { uri: imageUrl };
+    }
+    
+    // Si es una ruta local, intentar cargarla con require()
+    try {
+      return requireImage(imageUrl);
+    } catch (err) {
+      console.error('Error cargando imagen local:', imageUrl);
+      return null;
+    }
+  }, [imageUrl]);
+
+  // Para ImageZoom (necesita URLs)
+  const imageData = imageUrl?.startsWith('http') ? [{ url: imageUrl }] : [];
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{item.nombre}</Text>
         <Text style={styles.subtitle}>{item.equipo} • {item.posicion}</Text>
       </View>
+
+      {item.img && (
+        <TouchableOpacity 
+          onPress={() => imageData.length > 0 && setZoomVisible(true)}
+          activeOpacity={0.9}
+          style={styles.imageContainer}
+          disabled={imageData.length === 0}
+        >
+          {imageSource ? (
+            <>
+              <Image
+                source={imageSource}
+                style={styles.playerImage}
+                onLoadEnd={() => {
+                  setImageLoading(false);
+                  setImageError(null);
+                }}
+                onLoadStart={() => setImageLoading(true)}
+                onError={(error) => {
+                  console.error('Error cargando imagen:', error);
+                  setImageError('Error al cargar la imagen');
+                  setImageLoading(false);
+                }}
+              />
+              {imageLoading && (
+                <View style={styles.imageLoadingOverlay}>
+                  <ActivityIndicator size="large" color="#3b82f6" />
+                </View>
+              )}
+              {!imageLoading && !imageError && imageData.length > 0 && (
+                <View style={styles.zoomHint}>
+                  <Text style={styles.zoomHintText}>🔍 Toca para hacer zoom</Text>
+                </View>
+              )}
+            </>
+          ) : (
+            <View style={[styles.playerImage, styles.imageErrorOverlay]}>
+              <Text style={styles.imageErrorText}>❌ No se pudo cargar la imagen</Text>
+              <Text style={styles.imageErrorDetails}>{item.img}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      )}
+
+      <Modal visible={zoomVisible} transparent={true}>
+        <ImageZoom
+          imageUrls={imageData}
+          onSwipeDown={() => setZoomVisible(false)}
+          enableSwipeDown
+          saveToLocalByLongPress={false}
+        />
+        <TouchableOpacity 
+          style={styles.closeButton}
+          onPress={() => setZoomVisible(false)}
+        >
+          <Text style={styles.closeButtonText}>✕ Cerrar</Text>
+        </TouchableOpacity>
+      </Modal>
 
       <View style={styles.content}>
         <View style={styles.section}>
@@ -100,6 +187,84 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     textAlign: 'center',
     marginTop: 8,
+  },
+  imageContainer: {
+    backgroundColor: '#ffffff',
+    margin: 16,
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  playerImage: {
+    width: '100%',
+    height: 300,
+    resizeMode: 'cover',
+  },
+  imageLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  zoomHint: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  zoomHintText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    right: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  closeButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  imageErrorOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    paddingHorizontal: 16,
+  },
+  imageErrorText: {
+    color: '#dc2626',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  imageErrorDetails: {
+    color: '#991b1b',
+    fontSize: 10,
+    marginTop: 8,
+    textAlign: 'center',
   },
   content: {
     padding: 20,
