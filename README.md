@@ -172,39 +172,3 @@ interface BasketballPlayer {
 }
 ```
 
-## 📝 Notas importantes
-
-- La aplicación **no incluye sistema de autenticación**
-- Utiliza **navegación basada en archivos** con Expo Router
-- Compatible con **Android, iOS y Web**
-- Requiere configuración de Firebase antes de usar
-
-## 🐛 Solución de problemas
-
-### Error "unmatched route page could not be found"
-- Asegúrate de que `expo-router` esté removido de `app.json`
-- Reinicia el servidor con `npx expo start --clear`
-
-### Problemas con Firebase
-- Verifica que las credenciales en `firebaseConfig.ts` sean correctas
-- Asegúrate de que Firestore esté habilitado en Firebase Console
-
-### Errores de TypeScript
-- Ejecuta `npx tsc --noEmit` para verificar tipos
-- Los componentes usan hooks de React Navigation v6
-
-## 📄 Licencia
-
-Este proyecto es parte del curso de Desarrollo de Aplicaciones Móviles - UOC.
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
